@@ -1,2 +1,5 @@
 logdir/** filter=lfs diff=lfs merge=lfs -text
 transformer/corpora/** filter=lfs diff=lfs merge=lfs -text
+
+charrnn/data/** filter=lfs diff=lfs merge=lfs -text
+charrnn/pretrained_shakespeare/** filter=lfs diff=lfs merge=lfs -text
