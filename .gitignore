@@ -1,2 +1,4 @@
 transformer/results/
 .idea
+experimental/MNIST_data/
+experimental/__pycache__/
