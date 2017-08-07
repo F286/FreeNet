@@ -5,20 +5,36 @@
 // Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel CSMain
 
+#define groupSize 8
+#define filterSize 1 // 1=3x3, 2=5x5
+#define lookupLength (groupSize + filterSize * 2) * (groupSize + filterSize * 2)
+
 // Create a RenderTexture with enableRandomWrite flag and set it
 // with cs.SetTexture
-RWTexture2D<float4> Result;
+Texture2D<float4> Source;
+RWTexture2D<float4> Destination;
 RWStructuredBuffer<float> Filter;
 
-[numthreads(8,8,1)]
+groupshared float4 lookup[lookupLength];
+
+uint SubscriptToIndex(uint3 subscript, uint3 groupId) {
+	return	(subscript.x - groupId.x * groupSize) + 
+			(subscript.y - (groupId.y * groupSize)) * groupSize;
+}
+uint3 IndexToSubscript(uint index, uint3 groupId) {
+	return uint3(	groupId.x * groupSize + index % groupSize, 
+					groupId.y * groupSize + index / groupSize, 0);
+}
+
+[numthreads(groupSize, groupSize, 1)]
 void CSMain (	uint3 groupId : SV_GroupID, 
 				uint3 groupThreadId : SV_GroupThreadID, 
 				uint3 id : SV_DispatchThreadID, 
-				uint groupIndex : SV_GroupIndex)
-{
-	// TODO: insert actual code here!
+				uint groupIndex : SV_GroupIndex) {
 
-	Result[id.xy] = float4(groupId.y % 2, groupId.x % 2, 0, 1) * Filter[0];
-	//Result[id.xy] = float4(id.x & id.y, (id.x & 15) / 15.0, (id.y & 15) / 15.0, 0.0);
-	//Result[id.xy] = float4(1, 0, 0, 1);
+	lookup[groupIndex] = Source[IndexToSubscript(groupIndex, groupId).xy];
+
+	GroupMemoryBarrierWithGroupSync();
+
+	Destination[id.xy] = lookup[SubscriptToIndex(groupThreadId, uint3(0, 0, 0))];
 }

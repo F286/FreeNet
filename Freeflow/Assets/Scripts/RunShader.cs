@@ -5,7 +5,8 @@ using UnityEngine;
 public class RunShader : MonoBehaviour {
 
     public ComputeShader shader;
-    public MeshRenderer renderer;
+    public MeshRenderer quad;
+    public Texture2D source;
 
     public float[] filter;
 
@@ -13,22 +14,24 @@ public class RunShader : MonoBehaviour {
     {
         int kernelHandle = shader.FindKernel("CSMain");
 
-        RenderTexture tex = new RenderTexture(256, 256, 24);
-        tex.enableRandomWrite = true;
-        tex.Create();
+        RenderTexture destination = new RenderTexture(256, 256, 24);
+        //print(source.format);
+        destination.enableRandomWrite = true;
+        destination.Create();
 
         // Set filter buffer
         ComputeBuffer filterBuffer = new ComputeBuffer(filter.Length, 4);
         filterBuffer.SetData(filter);
 
-        shader.SetTexture(kernelHandle, "Result", tex);
+        shader.SetTexture(kernelHandle, "Source", source);
+        shader.SetTexture(kernelHandle, "Destination", destination);
         shader.SetBuffer(kernelHandle, "Filter", filterBuffer);
         shader.Dispatch(kernelHandle, 256 / 8, 256 / 8, 1);
 
         // Get filter buffer
         filterBuffer.GetData(filter);
 
-        renderer.material.mainTexture = tex;
+        quad.material.mainTexture = destination;
     }
     
 }

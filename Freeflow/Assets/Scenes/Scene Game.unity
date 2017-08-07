@@ -365,10 +365,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   shader: {fileID: 7200000, guid: 4ed82fd6cdb8c79408eee1ed6fb8b6f0, type: 3}
-  renderer: {fileID: 278699768}
+  quad: {fileID: 278699768}
+  source: {fileID: 2800000, guid: 6481f90b75150f047bdd951b10c495f3, type: 3}
   filter:
-  - 2
-  - -1
+  - 1
+  - 0
   - 0
   - 0
   - 0
